@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -7,6 +7,7 @@ from urllib.parse import unquote
 from src.pipeline.service import PipelineService
 import asyncio
 import json
+from pydantic import BaseModel
 
 # 加载环境变量
 load_dotenv()
@@ -32,15 +33,19 @@ app.add_middleware(
     allow_headers=["*"],  # 允许所有头
 )
 
+# 定义请求体模型
+class UrlRequest(BaseModel):
+    url: str
+
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
 
-@app.get("/api/book-vec/{url:path}")
-async def book2vec(url: str):
+@app.post("/api/book-vec")
+async def book2vec(request: UrlRequest):
     try:
-        # URL解码
-        decoded_url = unquote(url)
+        # 从请求体中获取URL
+        decoded_url = unquote(request.url)
         print(decoded_url)
         # 运行pipeline
         pipeline_service = PipelineService()
@@ -48,22 +53,31 @@ async def book2vec(url: str):
         result = decoded_url
         return {
             "code": 200,
-            "msg": "success",
-            "data": result
+            "msg": "success", 
+            "data": {"data":result}
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return {
+            "code": 500,
+            "msg": "error", 
+            "data": {"data":str(e)}
+        }
+    
 
-@app.get("/api/book-ask/{question}/{source}")
-async def ask_book(question: str, source: str):
+    
+@app.get("/api/book-ask")
+async def ask_book(
+    question: str = Query(..., description="The question to ask"),
+    source: str = Query(..., description="The source of the book")
+):
     async def generate_response():
         try:
             pipeline_service = PipelineService()
-            async for chunk in pipeline_service.ask_book_stream(question,source):
+            async for chunk in pipeline_service.ask_book_stream(question, source):
                 # 将每个文本块包装成SSE格式
-                yield f"data: {json.dumps({'code': 200, 'msg': 'success', 'data': chunk})}\n\n"
+                yield f"data: {json.dumps({'code': 200, 'msg': 'success', 'data': {'data':chunk}})}\n\n"
         except Exception as e:
-            yield f"data: {json.dumps({'code': 500, 'msg': 'error', 'error': str(e)})}\n\n"
+            yield f"data: {json.dumps({'code': 500, 'msg': 'error', 'data': {'data':str(e)}})}\n\n"
     
     return StreamingResponse(
         generate_response(),
