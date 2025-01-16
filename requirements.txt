@@ -7,11 +7,8 @@ anyio==4.8.0
 async-timeout==4.0.3
 attrs==24.3.0
 beautifulsoup4==4.12.3
-Brotli @ file:///private/var/folders/k1/30mswbxs7r1g6zwn8y4fyt500000gp/T/abs_f7i0oxypt6/croot/brotli-split_1736182464088/work
 bs4==0.0.2
 cbor==1.0.0
-certifi @ file:///private/var/folders/nz/j6p8yfhx1mv_0grj5xl4650h0000gp/T/abs_d8j59rqun5/croot/certifi_1734473289913/work/certifi
-charset-normalizer @ file:///croot/charset-normalizer_1721748349566/work
 click==8.1.8
 contourpy==1.3.1
 cycler==0.12.1
@@ -76,7 +73,6 @@ pydantic==2.10.5
 pydantic-settings==2.7.1
 pydantic_core==2.27.2
 pyparsing==3.2.1
-PySocks @ file:///Users/ktietz/ci_310/pysocks_1643961536721/work
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
 pytz==2024.2
@@ -108,7 +104,6 @@ typing-inspect==0.9.0
 typing_extensions==4.12.2
 tzdata==2024.2
 unlzw3==0.2.3
-urllib3 @ file:///private/var/folders/nz/j6p8yfhx1mv_0grj5xl4650h0000gp/T/abs_06_m8gdsy6/croot/urllib3_1727769822458/work
 uvicorn==0.34.0
 warc3-wet==0.2.5
 warc3-wet-clueweb09==0.2.5
