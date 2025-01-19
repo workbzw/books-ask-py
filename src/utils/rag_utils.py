@@ -94,12 +94,6 @@ class RAGUtils:
         try:
             # 1. 检索相关文本块
             relevant_chunks = self.get_relevant_chunks(question,sources=sources)
-            for i, chunk in enumerate(relevant_chunks):
-                print(f"Chunk {i + 1}:")
-                print(f"  Text: {chunk.metadata['text']}")
-                print(f"  Score: {chunk.score}")
-                print(f"  Source: {chunk.metadata.get('source', 'N/A')}")
-                print("---")
             # 2. 生成提示词
             prompt = self.generate_prompt(question, relevant_chunks)
             

@@ -8,9 +8,7 @@ class TextSplitterStep(Step):
         self.chunk_overlap = chunk_overlap
 
     async def process(self, text: str) -> List[str]:
-        print("--------------text---------------")
-        print(text)
-        print("--------------text---------------")
+
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=self.chunk_size,
             chunk_overlap=self.chunk_overlap

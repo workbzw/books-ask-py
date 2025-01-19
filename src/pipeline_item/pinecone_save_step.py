@@ -20,9 +20,7 @@ class PineconeSaveStep(Step):
         return hashlib.md5(safe_filename.encode('utf-8')).hexdigest()[:8]
 
     async def process(self, data: Any) -> dict:
-        print("--------------?data")
-        print(data)
-        print("--------------?data")
+
         try:
             # 如果 data 是元组，解构它
             if isinstance(data, tuple) and len(data) == 2:

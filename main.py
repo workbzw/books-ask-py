@@ -34,8 +34,8 @@ app = FastAPI(
 )
 
 origins = [
-    "http://localhost:3000",     # React 开发服务器
-    "http://localhost:5173",     # Vite 开发服务器
+    "http://localhost:3000",  # React 开发服务器
+    "http://localhost:5173",  # Vite 开发服务器
     "http://127.0.0.1:3000",
     "http://127.0.0.1:5173",
     "*"  # 在开发环境中允许所有源（生产环境不建议）
@@ -50,9 +50,11 @@ app.add_middleware(
     allow_headers=["*"],  # 允许所有头部
 )
 
+
 # 定义请求体模型
 class UrlRequest(BaseModel):
     url: str
+
 
 @app.post("/api/book-vec-url")
 async def book_vec_url(request: UrlRequest):
@@ -65,7 +67,7 @@ async def book_vec_url(request: UrlRequest):
         print(decoded_url)
         # 运行pipeline
         processor = Processor()
-        processor.add_step(DataScrapingStep(urls=[decoded_url]))
+        processor.add_step(DataScrapingStep())
         processor.add_step(TextCleanerStep())
         processor.add_step(TextSplitterStep(chunk_size=600, chunk_overlap=120))
         processor.add_step(TextEmbeddingStep(model_name='all-MiniLM-L6-v2'))
@@ -74,19 +76,22 @@ async def book_vec_url(request: UrlRequest):
             source=decoded_url,
             index_name=os.getenv("PINECONE_INDEX_NAME")
         ))
-        result = decoded_url
+        result = await processor.process([decoded_url])
+
         return {
             "code": 200,
-            "msg": "success", 
-            "data": {"data":result}
+            "msg": "success",
+            "data": {"data": result}
         }
     except Exception as e:
+        traceback.print_exc()
         return {
             "code": 500,
-            "msg": "error", 
-            "data": {"data":str(e)}
+            "msg": "error",
+            "data": {"data": str(e)}
         }
-    
+
+
 @app.post("/api/book-vec-file")
 async def book_vec_file(file: UploadFile = File(...)):
     """
@@ -101,11 +106,10 @@ async def book_vec_file(file: UploadFile = File(...)):
                 "data": None
             }
 
-        processor = Processor()
         temp_file_saver = TempFileSaverStep()
+        processor = Processor()
         processor.add_step(temp_file_saver)
         processor.add_step(DocumentReaderStep())
-        # processor.add_step(TextCleanerStep())
         processor.add_step(TextSplitterStep(chunk_size=600, chunk_overlap=120))
         processor.add_step(TextEmbeddingStep(model_name='all-MiniLM-L6-v2'))
         processor.add_step(PineconeSaveStep(
@@ -113,7 +117,7 @@ async def book_vec_file(file: UploadFile = File(...)):
             source=file.filename,
             index_name=os.getenv("PINECONE_INDEX_NAME")
         ))
-        
+
         result = await processor.process(input_data=file)
         return {"code": 200, "msg": "success", "data": {"data": result}}
 
@@ -125,24 +129,25 @@ async def book_vec_file(file: UploadFile = File(...)):
         if temp_file_saver:
             temp_file_saver.cleanup()
 
+
 @app.get("/api/book-ask")
 async def book_ask(
-    question: str = Query(..., description="The question to ask"),
-    sources: str = Query(..., description="List of book sources")# 多个source用英文逗号, 分隔
+        question: str = Query(..., description="The question to ask"),
+        sources: str = Query(..., description="List of book sources")  # 多个source用英文逗号, 分隔
 ):
     """
     提问图书
     """
+
     async def generate_response():
         try:
             pipeline_service = AskService()
             async for chunk in pipeline_service.ask_book_stream(question, sources.split(',')):
-                yield f"data: {json.dumps({'code': 200, 'msg': 'success', 'data': {'data':chunk}})}\n\n"
+                yield f"data: {json.dumps({'code': 200, 'msg': 'success', 'data': {'data': chunk}})}\n\n"
         except Exception as e:
-            yield f"data: {json.dumps({'code': 500, 'msg': 'error', 'data': {'data':str(e)}})}\n\n"
-    
+            yield f"data: {json.dumps({'code': 500, 'msg': 'error', 'data': {'data': str(e)}})}\n\n"
+
     return StreamingResponse(
         generate_response(),
         media_type="text/event-stream"
     )
-

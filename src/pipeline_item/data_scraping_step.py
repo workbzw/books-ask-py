@@ -8,12 +8,13 @@ from .base_step import Step
 class DataScrapingStep(Step):
     """网页数据爬取步骤"""
 
-    def __init__(self, urls: List[str]):
-        self.urls = urls
+    def __init__(self):
+        pass
 
     async def process(self, data: Any = None) -> List[str]:
         texts = []
-        for url in self.urls:
+        urls:List[str] = data
+        for url in urls:
             try:
                 response = requests.get(url)
                 soup = BeautifulSoup(response.text, 'html.parser')
@@ -22,4 +23,6 @@ class DataScrapingStep(Step):
                 texts.append(text)
             except Exception as e:
                 print(f"Error scraping {url}: {str(e)}")
-        return texts 
+        print("----------------->texts")
+        print(texts)
+        return texts
