@@ -3,6 +3,7 @@ from .base_step import Step
 
 class DocumentReaderStep(Step):
     def __init__(self):
+        self.texts = []
         pass
 
     async def process(self, file_path: str):
@@ -31,7 +32,8 @@ class DocumentReaderStep(Step):
                             full_text.append(text)
             
             # 合并所有文本
-            return "\n".join(full_text)
+            self.texts.append("\n".join(full_text))
+            return self.texts
             
         except Exception as e:
             raise Exception(f"Error reading document: {str(e)}")

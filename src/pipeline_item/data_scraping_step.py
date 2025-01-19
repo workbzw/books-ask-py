@@ -23,6 +23,4 @@ class DataScrapingStep(Step):
                 texts.append(text)
             except Exception as e:
                 print(f"Error scraping {url}: {str(e)}")
-        print("----------------->texts")
-        print(texts)
         return texts
