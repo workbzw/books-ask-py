@@ -1,3 +1,3 @@
 import office
 
-office.word.docx2doc("input_path", "output_path")
+office.word.docx2doc("/Users/teejoo/Downloads/20250106", "./docxs")
